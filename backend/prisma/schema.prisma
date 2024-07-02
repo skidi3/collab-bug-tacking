@@ -1,0 +1,60 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String    @id @default(cuid())
+  name     String
+  email    String    @unique
+  projects Project[]
+}
+
+model Project {
+  id      String  @id @default(cuid())
+  name    String
+  pages   Page[]
+  users   User[]
+  chats   Chat[]
+}
+
+model Page {
+  id          String @id @default(cuid())
+  name        String
+  htmlContent String
+  projectId   String
+  project     Project @relation(fields: [projectId], references: [id])
+  bugs        Bug[]
+}
+
+model Bug {
+  id        String   @id @default(cuid())
+  x         Float
+  y         Float
+  selector  String?
+  pageId    String
+  page      Page     @relation(fields: [pageId], references: [id])
+  comments  Comment[]
+}
+
+model Comment {
+  id      String @id @default(cuid())
+  content String
+  bugId   String
+  bug     Bug    @relation(fields: [bugId], references: [id])
+}
+
+model Chat {
+  id        String   @id @default(cuid())
+  content   String
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  userId    String
+  createdAt DateTime @default(now())
+}
